@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penjodoh Bilangan - Tema Jebat Klasik</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cinzel Decorative, Marcellus, & Plus Jakarta Sans for Malay Classical feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Marcellus&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for Quiz celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jebat: {
+                            crimson: '#7a1c1c',
+                            darkred: '#4a0e0e',
+                            gold: '#d4af37',
+                            amber: '#b45309',
+                            parchment: '#fcf8ee',
+                            wood: '#271c19',
+                            woodlight: '#3d2b27',
+                            steel: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['Cinzel Decorative', 'serif'],
+                        subheading: ['Marcellus', 'serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f5efe3;
+            background-image: radial-gradient(#e2d7c3 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .font-heading {
+            font-family: 'Cinzel Decorative', serif;
+        }
+        .font-subheading {
+            font-family: 'Marcellus', serif;
+        }
+
+        /* Classical Gold & Wood Borders */
+        .gold-border {
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        .wood-card {
+            background: linear-gradient(145deg, #2d1e1a, #1a1210);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+        .parchment-card {
+            background: #fdfbf7;
+            background-image: radial-gradient(#f3e9d2 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+
+        /* 3D Card Flip Animation */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ede3d2;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b45309;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7a1c1c;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-stone-800 flex flex-col justify-between selection:bg-amber-200">
+
+    <!-- Royal Classical Header -->
+    <header class="bg-gradient-to-r from-stone-950 via-jebat-wood to-stone-950 text-amber-100 border-b-2 border-amber-600/50 sticky top-0 z-30 shadow-xl">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-gradient-to-tr from-amber-700 via-amber-600 to-yellow-500 rounded-xl flex items-center justify-center text-stone-950 text-2xl shadow-lg border border-amber-300">
+                    🗡️
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-subheading font-bold text-xl md:text-2xl text-amber-200 tracking-wider">
+                            Pustaka Penjodoh Bilangan
+                        </h1>
+                        <span class="text-[10px] bg-amber-900/80 text-amber-300 border border-amber-600/50 px-2 py-0.5 rounded uppercase tracking-widest font-subheading">Klasik</span>
+                    </div>
+                    <p class="text-xs text-amber-400/80 font-medium">Warisan Bahasawan Pendeta Melayu • Tahun 1 hingga Tahun 6</p>
+                </div>
+            </div>
+
+            <!-- Controls / Settings -->
+            <div class="flex items-center gap-2">
+                <!-- Audio Speed Selector -->
+                <div class="bg-stone-900/90 border border-amber-800/60 p-1 rounded-xl flex items-center text-xs font-semibold text-amber-200 shadow-inner">
+                    <span class="px-2 hidden sm:inline text-amber-400"><i class="fa-solid fa-gauge-high mr-1"></i> Sebutan:</span>
+                    <button onclick="setAudioSpeed(0.8)" id="speed-slow" class="px-2.5 py-1 rounded-lg transition-all text-amber-300/70">Perlahan</button>
+                    <button onclick="setAudioSpeed(1.0)" id="speed-normal" class="px-2.5 py-1 rounded-lg bg-amber-600 text-stone-950 font-bold shadow-sm">Biasa</button>
+                </div>
+
+                <!-- Bookmark Filter Toggle -->
+                <button id="bookmark-filter-btn" onclick="toggleBookmarkFilter()" class="px-3.5 py-2 bg-stone-900/90 hover:bg-stone-800 border border-amber-600/60 rounded-xl text-amber-300 text-xs font-semibold flex items-center gap-2 transition-all shadow-md">
+                    <i class="fa-solid fa-bookmark text-amber-400"></i>
+                    <span class="hidden sm:inline font-subheading">Simpanan</span>
+                    <span id="bookmark-count" class="bg-amber-600 text-stone-950 font-bold px-2 py-0.5 rounded-full text-[10px]">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow flex flex-col gap-6">
+
+        <!-- Navigation Tabs & Search -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-stone-900/90 p-3.5 rounded-2xl shadow-xl border border-amber-700/40">
+            <!-- View Mode Switcher -->
+            <div class="flex p-1 bg-stone-950/80 rounded-xl w-full md:w-auto border border-amber-900/40">
+                <button onclick="switchTab('flashcard')" id="tab-flashcard" class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm font-subheading font-bold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 shadow-md">
+                    <i class="fa-solid fa-scroll"></i> Flashcard 3D
+                </button>
+                <button onclick="switchTab('grid')" id="tab-grid" class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm font-subheading font-bold flex items-center justify-center gap-2 transition-all text-amber-300 hover:text-white">
+                    <i class="fa-solid fa-table-cells font-subheading"></i> Senarai Penuh
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="flex-1 md:flex-none px-5 py-2 rounded-lg text-sm font-subheading font-bold flex items-center justify-center gap-2 transition-all text-amber-300 hover:text-white">
+                    <i class="fa-solid fa-shield-halved"></i> Ujian Jebat
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-80">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-500/70 text-sm"></i>
+                <input type="text" id="search-input" oninput="handleSearch()" placeholder="Cari penjodoh / perkataan..." class="w-full pl-9 pr-4 py-2 bg-stone-950/90 border border-amber-800/60 rounded-xl text-sm text-amber-100 placeholder-amber-600/60 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+            </div>
+        </div>
+
+        <!-- Year Level Filter Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="year-filters">
+            <button onclick="filterYear('all')" data-year="all" class="year-btn active px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-amber-700 text-stone-950 shadow-md border border-amber-400 transition-all">
+                Semua Tahap
+            </button>
+            <button onclick="filterYear(1)" data-year="1" class="year-btn px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-stone-900 text-amber-200 border border-amber-800/60 hover:border-amber-500 transition-all">
+                📘 Tahun 1
+            </button>
+            <button onclick="filterYear(2)" data-year="2" class="year-btn px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-stone-900 text-amber-200 border border-amber-800/60 hover:border-amber-500 transition-all">
+                📗 Tahun 2
+            </button>
+            <button onclick="filterYear(3)" data-year="3" class="year-btn px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-stone-900 text-amber-200 border border-amber-800/60 hover:border-amber-500 transition-all">
+                📙 Tahun 3
+            </button>
+            <button onclick="filterYear(4)" data-year="4" class="year-btn px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-stone-900 text-amber-200 border border-amber-800/60 hover:border-amber-500 transition-all">
+                📕 Tahun 4
+            </button>
+            <button onclick="filterYear(5)" data-year="5" class="year-btn px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-stone-900 text-amber-200 border border-amber-800/60 hover:border-amber-500 transition-all">
+                📔 Tahun 5
+            </button>
+            <button onclick="filterYear(6)" data-year="6" class="year-btn px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-stone-900 text-amber-200 border border-amber-800/60 hover:border-amber-500 transition-all">
+                📓 Tahun 6
+            </button>
+        </div>
+
+        <!-- VIEW 1: FLASHCARD VIEW -->
+        <div id="view-flashcard" class="flex flex-col items-center justify-center my-auto min-h-[480px]">
+            
+            <!-- Progress Counter & Info -->
+            <div class="w-full max-w-lg flex items-center justify-between mb-3 text-xs font-bold text-stone-700">
+                <span id="card-counter" class="font-subheading bg-stone-200/80 border border-stone-300 px-3 py-1 rounded-lg shadow-sm">Kad 1 daripada 30</span>
+                <span id="current-year-badge" class="px-3 py-1 rounded-lg bg-jebat-crimson text-amber-200 border border-amber-500/50 font-subheading shadow-sm">Tahun 1</span>
+            </div>
+
+            <!-- The 3D Flip Card Container -->
+            <div class="w-full max-w-lg h-[400px] perspective-1000 cursor-pointer group" onclick="flipCard()">
+                <div id="card-inner" class="card-inner relative w-full h-full transform-style-3d shadow-2xl rounded-3xl">
+                    
+                    <!-- CARD FRONT (Parchment & Ukiran Classic Style) -->
+                    <div class="absolute inset-0 w-full h-full backface-hidden rounded-3xl parchment-card border-4 border-amber-700/60 p-6 flex flex-col justify-between items-center text-center shadow-xl relative overflow-hidden">
+                        
+                        <!-- Traditional Corner Motifs -->
+                        <div class="absolute top-2 left-2 text-amber-800/30 text-xl font-serif">❦</div>
+                        <div class="absolute top-2 right-2 text-amber-800/30 text-xl font-serif">❦</div>
+                        <div class="absolute bottom-2 left-2 text-amber-800/30 text-xl font-serif">❦</div>
+                        <div class="absolute bottom-2 right-2 text-amber-800/30 text-xl font-serif">❦</div>
+
+                        <!-- Top Bar inside Card -->
+                        <div class="w-full flex items-center justify-between z-10" onclick="event.stopPropagation()">
+                            <button onclick="speakWord(currentCard.perkataan)" title="Sebut Perkataan" class="w-11 h-11 rounded-xl bg-amber-700 hover:bg-amber-800 text-amber-100 flex items-center justify-center transition-all shadow-md border border-amber-500">
+                                <i class="fa-solid fa-volume-high text-lg"></i>
+                            </button>
+                            <span class="text-[11px] font-subheading font-bold px-3 py-1 bg-amber-100/90 text-amber-900 border border-amber-300 rounded-full shadow-sm">
+                                🔄 Sentuh kad untuk terbalikkan
+                            </span>
+                            <button onclick="toggleBookmark(currentCard.id)" title="Simpan Kad" class="w-11 h-11 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-700 flex items-center justify-center transition-all border border-amber-300 shadow-sm">
+                                <i id="card-bookmark-icon" class="fa-solid fa-bookmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <!-- Card Core Visual Content -->
+                        <div class="my-auto flex flex-col items-center z-10">
+                            <div id="card-emoji" class="text-7xl md:text-8xl mb-2 filter drop-shadow-md transform group-hover:scale-110 transition-transform duration-300">
+                                🐱
+                            </div>
+                            <div class="text-[11px] uppercase tracking-widest font-bold text-amber-800/80 font-subheading mb-0.5">Penjodoh Bilangan</div>
+                            <h2 id="card-title" class="font-subheading font-extrabold text-4xl md:text-5xl text-stone-900 tracking-wide">
+                                ekor
+                            </h2>
+                            <p id="card-phonetic" class="text-xs text-amber-800/70 font-medium italic mt-1">/e-kor/</p>
+                            <div id="card-usage" class="mt-4 px-4 py-2.5 bg-amber-50/90 text-stone-900 border border-amber-300/80 rounded-xl text-sm font-medium max-w-xs shadow-inner">
+                                Digunakan untuk haiwan atau binatang.
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Prompt -->
+                        <div class="text-[11px] text-amber-900/60 font-subheading font-semibold flex items-center gap-1.5 z-10">
+                            <i class="fa-solid fa-feather"></i> Lihat contoh ayat dalam naskhah
+                        </div>
+                    </div>
+
+                    <!-- CARD BACK (Classic Jebat Dark Crimson/Wood Style) -->
+                    <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl wood-card text-amber-100 border-4 border-amber-500/70 p-6 flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden">
+                        
+                        <!-- Inner Decorative Gold Line -->
+                        <div class="absolute inset-3 border border-amber-500/20 rounded-2xl pointer-events-none"></div>
+
+                        <!-- Top Bar inside Card Back -->
+                        <div class="w-full flex items-center justify-between z-10" onclick="event.stopPropagation()">
+                            <span id="card-back-title" class="font-subheading text-lg text-amber-300 font-bold tracking-wider">
+                                📜 Contoh Ayat Warisan
+                            </span>
+                            <button onclick="speakSentence(currentCard.contohAyat)" title="Sebut Ayat" class="w-11 h-11 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 flex items-center justify-center transition-all border border-amber-500/50">
+                                <i class="fa-solid fa-volume-high text-lg"></i>
+                            </button>
+                        </div>
+
+                        <!-- Card Back Content -->
+                        <div class="my-auto px-2 flex flex-col items-center z-10">
+                            <i class="fa-solid fa-quote-left text-amber-500/30 text-3xl mb-2"></i>
+                            <p id="card-sentence" class="text-lg md:text-xl font-medium leading-relaxed text-amber-50">
+                                Ibu membeli dua <span class="text-amber-400 font-bold underline underline-offset-4 decoration-2">ekor</span> ikan di pasar.
+                            </p>
+                            
+                            <!-- Examples list -->
+                            <div class="mt-5 flex flex-wrap justify-center gap-1.5 max-w-xs">
+                                <span class="text-[11px] text-amber-400/80 w-full mb-1 font-subheading">Contoh benda/objek lain:</span>
+                                <div id="card-objects" class="flex flex-wrap justify-center gap-1.5">
+                                    <!-- Dynamic badges -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Back Footer -->
+                        <div class="text-[11px] text-amber-400/60 font-subheading font-semibold flex items-center gap-1 z-10">
+                            <i class="fa-solid fa-rotate-left"></i> Sentuh untuk kembali
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Card Controls -->
+            <div class="flex items-center justify-center gap-4 mt-6 w-full max-w-lg">
+                <button onclick="prevCard()" class="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 text-amber-300 hover:bg-stone-800 flex items-center justify-center text-lg shadow-md transition-all hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <button onclick="speakCurrentCard()" title="Baca Kad" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-stone-950 font-subheading font-bold text-sm flex items-center gap-2 shadow-lg border border-yellow-300 transition-all hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-volume-high text-base"></i> Sebut Naskhah
+                </button>
+
+                <button onclick="shuffleCards()" title="Rawak" class="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 text-amber-300 hover:bg-stone-800 flex items-center justify-center text-lg shadow-md transition-all hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+
+                <button onclick="nextCard()" class="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 text-amber-300 hover:bg-stone-800 flex items-center justify-center text-lg shadow-md transition-all hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 2: GRID LIST VIEW -->
+        <div id="view-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Dynamically populated card items -->
+        </div>
+
+        <!-- VIEW 3: INTERACTIVE QUIZ MODE -->
+        <div id="view-quiz" class="hidden flex flex-col items-center justify-center my-auto min-h-[480px]">
+            <div class="w-full max-w-xl wood-card rounded-3xl border-2 border-amber-500/60 p-6 md:p-8 shadow-2xl relative text-amber-100">
+                
+                <!-- Quiz Header Scoreboard -->
+                <div class="flex items-center justify-between border-b border-amber-800/60 pb-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">⚔️</span>
+                        <div>
+                            <h3 class="font-subheading font-bold text-amber-200 text-lg">Ujian Jebat Penjodoh Bilangan</h3>
+                            <p id="quiz-question-num" class="text-xs text-amber-400/80 font-medium">Soalan 1 daripada 10</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right bg-stone-950/80 border border-amber-700/60 px-3 py-1 rounded-xl">
+                            <span class="text-[9px] text-amber-400 font-bold uppercase tracking-wider block">Markah</span>
+                            <span id="quiz-score" class="font-subheading font-bold text-xl text-amber-300">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Question Box -->
+                <div class="text-center my-4">
+                    <div id="quiz-emoji" class="text-6xl mb-3 filter drop-shadow">🐱</div>
+                    <p id="quiz-prompt" class="text-amber-300/80 text-xs font-subheading mb-2">Isikan tempat kosong dengan penjodoh bilangan paling tepat:</p>
+                    <div id="quiz-sentence-box" class="bg-stone-950/80 border border-amber-600/50 rounded-2xl p-4 text-base md:text-lg font-semibold text-amber-100 flex items-center justify-center gap-2 shadow-inner">
+                        <!-- Sentence with blank -->
+                    </div>
+                </div>
+
+                <!-- Quiz Audio Button -->
+                <div class="flex justify-center my-3">
+                    <button onclick="speakQuizSentence()" class="text-xs bg-stone-900 hover:bg-stone-800 text-amber-300 border border-amber-700/60 px-3 py-1.5 rounded-xl font-semibold flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-volume-high text-amber-400"></i> Dengar Soalan
+                    </button>
+                </div>
+
+                <!-- Quiz Options Grid -->
+                <div id="quiz-options" class="grid grid-cols-2 gap-3 my-6">
+                    <!-- Option buttons dynamically rendered -->
+                </div>
+
+                <!-- Quiz Feedback message -->
+                <div id="quiz-feedback" class="hidden p-3 rounded-xl text-center text-sm font-bold my-2"></div>
+
+                <!-- Next Question Button -->
+                <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-500 text-stone-950 font-subheading font-bold rounded-xl transition-all shadow-lg border border-yellow-300">
+                    Soalan Seterusnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-stone-950 border-t border-amber-800/40 py-4 mt-auto text-amber-400/60 text-xs font-medium">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            📜 Disusun khas mengikut Kurikulum Standard Sekolah Rendah (KSSR) Bahasa Melayu • Tema Klasik Pendeta Melayu
+        </div>
+    </footer>
+
+    <script>
+        // Penjodoh Bilangan Database (Tahun 1 - Tahun 6)
+        const penjodohData = [
+            // TAHUN 1
+            { id: 1, tahun: 1, perkataan: "ekor", sebutan: "e-kor", kegunaan: "Digunakan untuk semua jenis haiwan atau binatang.", contohAyat: "Ibu membeli dua ekor ikan di pasar pagi.", contohBenda: ["Kucing", "Burung", "Ikan", "Gajah"], emoji: "🐱" },
+            { id: 2, tahun: 1, perkataan: "biji", sebutan: "bi-ji", kegunaan: "Digunakan untuk buah-buahan dan benda yang kecil serta bulat.", contohAyat: "Ahmad makan sebiji epal merah yang manis.", contohBenda: ["Guli", "Epal", "Bola", "Telur"], emoji: "🍎" },
+            { id: 3, tahun: 1, perkataan: "batang", sebutan: "ba-tang", kegunaan: "Digunakan untuk benda yang lurus, panjang dan keras.", contohAyat: "Siti menulis menggunakan sebatang pensel warna.", contohBenda: ["Pensel", "Sungai", "Pokok", "Lilin"], emoji: "✏️" },
+            { id: 4, tahun: 1, perkataan: "buah", sebutan: "bu-ah", kegunaan: "Digunakan untuk benda besar, kenderaan, dan tempat.", contohAyat: "Ayah memandu sebuah kereta baharu ke pejabat.", contohBenda: ["Rumah", "Kereta", "Buku", "Meja"], emoji: "🚗" },
+            { id: 5, tahun: 1, perkataan: "helai", sebutan: "he-lai", kegunaan: "Digunakan untuk benda yang nipis, lembut dan lebar.", contohAyat: "Adik memakai sehelai baju t-shirt berwarna biru.", contohBenda: ["Baju", "Kertas", "Daun", "Tuala"], emoji: "👕" },
+
+            // TAHUN 2
+            { id: 6, tahun: 2, perkataan: "kuntum", sebutan: "kun-tum", kegunaan: "Digunakan khusus untuk pelbagai jenis bunga.", contohAyat: "Abang menghadiahkan sekuntum bunga mawar kepada ibu.", contohBenda: ["Mawar", "Orkid", "Melati", "Raya"], emoji: "🌹" },
+            { id: 7, tahun: 2, perkataan: "keping", sebutan: "ke-ping", kegunaan: "Digunakan untuk benda yang nipis, rata dan berkeping.", contohAyat: "Saya makan dua keping roti bakar semasa sarapan.", contohBenda: ["Roti", "Biskut", "Gambar", "Papan"], emoji: "🍞" },
+            { id: 8, tahun: 2, perkataan: "pucuk", sebutan: "pu-cuk", kegunaan: "Digunakan untuk surat, jarum, dan senjata api.", contohAyat: "Posmen menyerahkan sepucuk surat kepada Pak Cik Din.", contohBenda: ["Surat", "Pistol", "Jarum"], emoji: "✉️" },
+            { id: 9, tahun: 2, perkataan: "bilah", sebutan: "bi-lah", kegunaan: "Digunakan untuk benda yang tajam dan runcing seperti keris.", contohAyat: "Hang Jebat memegang sebilah Keris Taming Sari.", contohBenda: ["Keris", "Pisau", "Gunting", "Pedang"], emoji: "🗡️" },
+            { id: 10, tahun: 2, perkataan: "pasang", sebutan: "pa-sang", kegunaan: "Digunakan untuk benda yang berpasangan (ada dua).", contohAyat: "Ibu membeli sepasang kasut sekolah baharu.", contohBenda: ["Kasut", "Cermin Mata", "Anting-anting", "Stoking"], emoji: "👟" },
+
+            // TAHUN 3
+            { id: 11, tahun: 3, perkataan: "utas", sebutan: "u-tas", kegunaan: "Digunakan untuk benda yang panjang dan berurat atau boleh digulung.", contohAyat: "Nenek memakai seutas rantai emas yang cantik.", contohBenda: ["Tali", "Rantai", "Jam Tangan", "Benang"], emoji: "📿" },
+            { id: 12, tahun: 3, perkataan: "rumpun", sebutan: "rum-pun", kegunaan: "Digunakan untuk tumbuhan yang tumbuh berkelompok.", contohAyat: "Datuk menanam serumpun serai di belakang rumah.", contohBenda: ["Serai", "Buluh", "Lalang", "Padi"], emoji: "🌾" },
+            { id: 13, tahun: 3, perkataan: "sikat", sebutan: "si-kat", kegunaan: "Digunakan khusus untuk buah pisang yang sekelompok.", contohAyat: "Ibu membeli sesikat pisang emas dari gerai buah.", contohBenda: ["Pisang"], emoji: "🍌" },
+            { id: 14, tahun: 3, perkataan: "laras", sebutan: "la-ras", kegunaan: "Digunakan untuk senjata api yang memanjang.", contohAyat: "Prajurit itu memegang selaras senapang semasa bertugas.", contohBenda: ["Senapang", "Meriam"], emoji: "🔫" },
+            { id: 15, tahun: 3, perkataan: "berkas", sebutan: "ber-kas", kegunaan: "Digunakan untuk benda yang diikat bersama-sama.", contohAyat: "Ayah mengikat seberkas kayu api di luar dapur.", contohBenda: ["Kayu Api", "Lidi", "Kunci"], emoji: "🪵" },
+
+            // TAHUN 4
+            { id: 16, tahun: 4, perkataan: "naskhah", sebutan: "nas-khah", kegunaan: "Digunakan untuk bahan bacaan bertulis dan bercetak.", contohAyat: "Ayah membaca senaskhah surat khabar setiap pagi.", contohBenda: ["Surat Khabar", "Majalah", "Novel", "Naskhah Hikayat"], emoji: "📰" },
+            { id: 17, tahun: 4, perkataan: "pintu", sebutan: "pin-tu", kegunaan: "Digunakan untuk deretan bangunan rumah atau kedai.", contohAyat: "Peniaga itu menyewa sepintu kedai di pekan.", contohBenda: ["Rumah Teres", "Kedai"], emoji: "🚪" },
+            { id: 18, tahun: 4, perkataan: "untai", sebutan: "un-tai", kegunaan: "Digunakan untuk benda berangkai atau rangkai puisi.", contohAyat: "Penyajak mendeklamasikan seuntai syair warisan.", contohBenda: ["Kalung Mutiara", "Pantun", "Syair"], emoji: "📜" },
+            { id: 19, tahun: 4, perkataan: "kawan", sebutan: "ka-wan", kegunaan: "Digunakan untuk kumpulan haiwan yang bergerak bersama.", contohAyat: "Sekawan gajah berjalan melintas kawasan hutan.", contohBenda: ["Gajah", "Burung", "Lebah", "Kambing"], emoji: "🐘" },
+            { id: 20, tahun: 4, perkataan: "gugus", sebutan: "gu-gus", kegunaan: "Digunakan untuk buah-buahan atau benda yang berkelompok.", contohAyat: "Adik makan segugus anggur manis yang dibeli ibu.", contohBenda: ["Anggur", "Kunci", "Pulau"], emoji: "🍇" },
+
+            // TAHUN 5
+            { id: 21, tahun: 5, perkataan: "rawang", sebutan: "ra-wang", kegunaan: "Digunakan untuk benda yang bersirat seperti pukat atau jaring.", contohAyat: "Nelayan itu memasang serawang pukat di tengah laut.", contohBenda: ["Pukat", "Jaring"], emoji: "🎣" },
+            { id: 22, tahun: 5, perkataan: "rangkai", sebutan: "rang-kai", kegunaan: "Digunakan untuk ayat, nyanyian atau perkataan yang digabungkan.", contohAyat: "Penyanyi itu menyanyikan serangkai lagu gurindam.", contohBenda: ["Lagu", "Pantun", "Gurindam"], emoji: "🎶" },
+            { id: 23, tahun: 5, perkataan: "kandang", sebutan: "kan-dang", kegunaan: "Digunakan untuk haiwan yang berada di dalam tempat kurungan.", contohAyat: "Penternak itu mempunyai sekandang kambing yang sihat.", contohBenda: ["Kambing", "Lembu", "Kuda"], emoji: "🐐" },
+            { id: 24, tahun: 5, perkataan: "tongkol", sebutan: "tong-kol", kegunaan: "Digunakan untuk buah jagung atau ketulan bongkah.", contohAyat: "Ibu membakar tiga tongkol jagung manis untuk minum petang.", contohBenda: ["Jagung", "Kayu Bongkah"], emoji: "🌽" },
+            { id: 25, tahun: 5, perkataan: "ulas", sebutan: "u-las", kegunaan: "Digunakan untuk isi buah-buahan yang berulas.", contohAyat: "Saya makan dua ulas durian Musang King yang enak.", contohBenda: ["Durian", "Nangka", "Cempedak", "Limau"], emoji: "🥭" },
+
+            // TAHUN 6
+            { id: 26, tahun: 6, perkataan: "patah", sebutan: "pa-tah", kegunaan: "Digunakan khusus untuk perkataan atau ucapan singkat.", contohAyat: "Pendeta menyampaikan sepatah dua kata dalam majlis.", contohBenda: ["Perkataan", "Kata-kata"], emoji: "💬" },
+            { id: 27, tahun: 6, perkataan: "kajang", sebutan: "ka-jang", kegunaan: "Digunakan untuk benda yang lebar seperti atap atau kertas besar.", contohAyat: "Penduduk kampung memasang sekajang atap nipah di pondok.", contohBenda: ["Atap Nipah", "Kertas Mahjong"], emoji: "🏠" },
+            { id: 28, tahun: 6, perkataan: "tandan", sebutan: "tan-dan", kegunaan: "Digunakan untuk buah-buahan yang bergugus pada tangkai besar.", contohAyat: "Pekebun itu memetik setandan kelapa sawit.", contohBenda: ["Kelapa Sawit", "Kelapa", "Pisang"], emoji: "🌴" },
+            { id: 29, tahun: 6, perkataan: "jambah", sebutan: "jam-bah", kegunaan: "Digunakan untuk bunga yang digubah bersama bekasnya.", contohAyat: "Pekerja meletakkan sejambah bunga di meja pendaftaran.", contohBenda: ["Bunga dalam Pasu", "Gubahan Bunga"], emoji: "🏺" },
+            { id: 30, tahun: 6, perkataan: "gemal", sebutan: "ge-mal", kegunaan: "Digunakan untuk berkas padi atau lalang yang boleh digenggam.", contohAyat: "Petani itu memegang segemal padi yang baru dituai.", contohBenda: ["Padi", "Lalang", "Rumput"], emoji: "🌾" }
+        ];
+
+        let filteredCards = [...penjodohData];
+        let currentIndex = 0;
+        let isFlipped = false;
+        let activeTab = 'flashcard';
+        let activeYear = 'all';
+        let searchQuery = '';
+        let showBookmarksOnly = false;
+        let bookmarks = JSON.parse(localStorage.getItem('pb_bookmarks_jebat') || '[]');
+        let audioSpeed = 1.0;
+
+        // Quiz State
+        let quizQuestions = [];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let currentQuizCard = null;
+
+        // Web Speech API for Bahasa Melayu Malaysia Speech Synthesis
+        function speakText(text, callback = null) {
+            if (!('speechSynthesis' in window)) {
+                showToast('Pelayar anda tidak menyokong audio sebutan.');
+                return;
+            }
+
+            window.speechSynthesis.cancel(); // Stop current speech
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = audioSpeed;
+            utterance.pitch = 0.95; // Slightly deeper classical tone
+
+            const voices = window.speechSynthesis.getVoices();
+            const malaysianVoice = voices.find(v => 
+                v.lang.toLowerCase().includes('ms') || 
+                v.lang.toLowerCase().includes('id') || 
+                v.name.toLowerCase().includes('malay') ||
+                v.name.toLowerCase().includes('indonesian')
+            );
+
+            if (malaysianVoice) {
+                utterance.voice = malaysianVoice;
+            }
+            utterance.lang = 'ms-MY';
+
+            if (callback) {
+                utterance.onend = callback;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Web Audio API Sound Effects Synthesizer
+        function playSoundEffect(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'flip') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(280, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(520, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.1);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime); // A4
+                    osc.frequency.setValueAtTime(554.37, ctx.currentTime + 0.1); // C#5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.2); // E5
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, ctx.currentTime);
+                    osc.frequency.setValueAtTime(150, ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                }
+            } catch(e) {}
+        }
+
+        function speakWord(word) {
+            speakText(word);
+        }
+
+        function speakSentence(sentence) {
+            speakText(sentence);
+        }
+
+        function speakCurrentCard() {
+            if (!currentCard) return;
+            const fullText = `Penjodoh bilangan. ${currentCard.perkataan}. ${currentCard.kegunaan} Contoh ayat: ${currentCard.contohAyat}`;
+            speakText(fullText);
+        }
+
+        function setAudioSpeed(speed) {
+            audioSpeed = speed;
+            document.getElementById('speed-slow').className = speed === 0.8 
+                ? 'px-2.5 py-1 rounded-lg bg-amber-600 text-stone-950 font-bold' 
+                : 'px-2.5 py-1 rounded-lg text-amber-300/70';
+            document.getElementById('speed-normal').className = speed === 1.0 
+                ? 'px-2.5 py-1 rounded-lg bg-amber-600 text-stone-950 font-bold' 
+                : 'px-2.5 py-1 rounded-lg text-amber-300/70';
+        }
+
+        let currentCard = penjodohData[0];
+
+        function updateCardDisplay() {
+            if (filteredCards.length === 0) {
+                document.getElementById('card-counter').innerText = '0 daripada 0';
+                document.getElementById('card-title').innerText = 'Tiada Naskhah';
+                document.getElementById('card-emoji').innerText = '🔍';
+                document.getElementById('card-usage').innerText = 'Tiada penjodoh bilangan padan dengan carian.';
+                document.getElementById('card-phonetic').innerText = '';
+                document.getElementById('card-sentence').innerText = 'Sila pilih tahap atau buat carian semula.';
+                return;
+            }
+
+            if (currentIndex >= filteredCards.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = filteredCards.length - 1;
+
+            currentCard = filteredCards[currentIndex];
+
+            // Update UI elements
+            document.getElementById('card-counter').innerText = `Kad ${currentIndex + 1} daripada ${filteredCards.length}`;
+            document.getElementById('card-emoji').innerText = currentCard.emoji;
+            document.getElementById('card-title').innerText = currentCard.perkataan;
+            document.getElementById('card-phonetic').innerText = `/${currentCard.sebutan}/`;
+            document.getElementById('card-usage').innerText = currentCard.kegunaan;
+            
+            // Sentence with highlighted penjodoh bilangan
+            const regex = new RegExp(`(${currentCard.perkataan})`, 'gi');
+            const highlightedSentence = currentCard.contohAyat.replace(regex, `<span class="text-amber-400 font-bold underline underline-offset-4 decoration-2">$1</span>`);
+            document.getElementById('card-sentence').innerHTML = highlightedSentence;
+
+            // Badges for objects
+            const objectsContainer = document.getElementById('card-objects');
+            objectsContainer.innerHTML = currentCard.contohBenda
+                .map(obj => `<span class="px-2.5 py-0.5 bg-stone-900 text-amber-200 rounded-md text-[11px] font-medium border border-amber-800/60">${obj}</span>`)
+                .join('');
+
+            // Year badge
+            const yearBadge = document.getElementById('current-year-badge');
+            yearBadge.innerText = `Tahun ${currentCard.tahun}`;
+
+            // Bookmark icon status
+            const isBookmarked = bookmarks.includes(currentCard.id);
+            const bmIcon = document.getElementById('card-bookmark-icon');
+            bmIcon.className = isBookmarked ? 'fa-solid fa-bookmark text-amber-600' : 'fa-regular fa-bookmark text-amber-800/60';
+
+            // Reset flip state when card changes
+            if (isFlipped) {
+                isFlipped = false;
+                document.getElementById('card-inner').classList.remove('rotate-y-180');
+            }
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            const cardInner = document.getElementById('card-inner');
+            if (isFlipped) {
+                cardInner.classList.add('rotate-y-180');
+            } else {
+                cardInner.classList.remove('rotate-y-180');
+            }
+            playSoundEffect('flip');
+        }
+
+        function nextCard() {
+            if (filteredCards.length === 0) return;
+            currentIndex = (currentIndex + 1) % filteredCards.length;
+            updateCardDisplay();
+        }
+
+        function prevCard() {
+            if (filteredCards.length === 0) return;
+            currentIndex = (currentIndex - 1 + filteredCards.length) % filteredCards.length;
+            updateCardDisplay();
+        }
+
+        function shuffleCards() {
+            if (filteredCards.length <= 1) return;
+            for (let i = filteredCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+            }
+            currentIndex = 0;
+            updateCardDisplay();
+            showToast('🗡️ Naskhah telah dirawakkan!');
+        }
+
+        function toggleBookmark(id) {
+            if (bookmarks.includes(id)) {
+                bookmarks = bookmarks.filter(bmId => bmId !== id);
+            } else {
+                bookmarks.push(id);
+            }
+            localStorage.setItem('pb_bookmarks_jebat', JSON.stringify(bookmarks));
+            updateBookmarkCount();
+            updateCardDisplay();
+            if (activeTab === 'grid') renderGridView();
+        }
+
+        function updateBookmarkCount() {
+            document.getElementById('bookmark-count').innerText = bookmarks.length;
+        }
+
+        function toggleBookmarkFilter() {
+            showBookmarksOnly = !showBookmarksOnly;
+            const btn = document.getElementById('bookmark-filter-btn');
+            if (showBookmarksOnly) {
+                btn.className = 'px-3.5 py-2 bg-amber-600 text-stone-950 border border-yellow-300 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md transition-all font-subheading';
+            } else {
+                btn.className = 'px-3.5 py-2 bg-stone-900/90 hover:bg-stone-800 border border-amber-600/60 rounded-xl text-amber-300 text-xs font-semibold flex items-center gap-2 transition-all shadow-md';
+            }
+            applyFilters();
+        }
+
+        function filterYear(year) {
+            activeYear = year;
+            document.querySelectorAll('.year-btn').forEach(btn => {
+                const btnYear = btn.getAttribute('data-year');
+                if ((year === 'all' && btnYear === 'all') || (btnYear == year)) {
+                    btn.className = 'year-btn active px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-amber-600 text-stone-950 shadow-md border border-amber-300 transition-all';
+                } else {
+                    btn.className = 'year-btn px-4 py-2 rounded-xl text-xs font-subheading font-bold whitespace-nowrap bg-stone-900 text-amber-200 border border-amber-800/60 hover:border-amber-500 transition-all';
+                }
+            });
+            applyFilters();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            filteredCards = penjodohData.filter(card => {
+                const matchesYear = (activeYear === 'all') || (card.tahun == activeYear);
+                const matchesSearch = searchQuery === '' || 
+                    card.perkataan.toLowerCase().includes(searchQuery) || 
+                    card.kegunaan.toLowerCase().includes(searchQuery) ||
+                    card.contohAyat.toLowerCase().includes(searchQuery);
+                const matchesBookmark = !showBookmarksOnly || bookmarks.includes(card.id);
+
+                return matchesYear && matchesSearch && matchesBookmark;
+            });
+
+            currentIndex = 0;
+            if (activeTab === 'flashcard') updateCardDisplay();
+            if (activeTab === 'grid') renderGridView();
+            if (activeTab === 'quiz') setupQuiz();
+        }
+
+        function renderGridView() {
+            const gridContainer = document.getElementById('view-grid');
+            if (filteredCards.length === 0) {
+                gridContainer.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-amber-800 font-medium font-subheading">
+                        <p class="text-4xl mb-2">📜</p>
+                        <p>Tiada naskhah penjodoh bilangan dijumpai.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gridContainer.innerHTML = filteredCards.map(card => {
+                const isBookmarked = bookmarks.includes(card.id);
+                return `
+                    <div class="parchment-card rounded-2xl border-2 border-amber-700/60 p-5 shadow-lg hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-3xl">${card.emoji}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[10px] font-subheading font-bold px-2 py-0.5 rounded bg-jebat-crimson text-amber-200 border border-amber-500/40">Tahun ${card.tahun}</span>
+                                    <button onclick="toggleBookmark(${card.id})" class="text-amber-800 hover:text-amber-600 p-1">
+                                        <i class="${isBookmarked ? 'fa-solid fa-bookmark text-amber-600' : 'fa-regular fa-bookmark'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <h3 class="font-subheading font-extrabold text-2xl text-stone-900">${card.perkataan}</h3>
+                                <span class="text-xs text-amber-800/70 italic">/${card.sebutan}/</span>
+                                <button onclick="speakWord('${card.perkataan}')" class="text-amber-800 hover:text-amber-950 text-xs ml-auto">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
+
+                            <p class="text-xs text-stone-700 mb-3 font-medium leading-relaxed">${card.kegunaan}</p>
+                            
+                            <div class="bg-amber-100/70 p-2.5 rounded-xl border border-amber-300 text-xs text-stone-900 mb-3 shadow-inner">
+                                <p class="italic">"${card.contohAyat}"</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2 border-t border-amber-300/80 text-[11px]">
+                            <span class="text-amber-900/70 font-subheading">Objek: ${card.contohBenda.slice(0, 3).join(', ')}</span>
+                            <button onclick="speakSentence('${card.contohAyat.replace(/'/g, "\\'")}')" class="text-amber-900 hover:text-amber-950 font-bold font-subheading flex items-center gap-1">
+                                Sebut <i class="fa-solid fa-volume-high text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setupQuiz() {
+            const pool = filteredCards.length >= 4 ? filteredCards : penjodohData;
+            quizQuestions = [...pool].sort(() => 0.5 - Math.random());
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').innerText = '0';
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            if (quizQuestions.length === 0 || currentQuizIndex >= Math.min(10, quizQuestions.length)) {
+                finishQuiz();
+                return;
+            }
+
+            currentQuizCard = quizQuestions[currentQuizIndex];
+            document.getElementById('quiz-question-num').innerText = `Soalan ${currentQuizIndex + 1} daripada ${Math.min(10, quizQuestions.length)}`;
+            document.getElementById('quiz-emoji').innerText = currentQuizCard.emoji;
+
+            const regex = new RegExp(`(${currentQuizCard.perkataan})`, 'gi');
+            const blankSentence = currentQuizCard.contohAyat.replace(regex, `______`);
+            document.getElementById('quiz-sentence-box').innerHTML = `"${blankSentence}"`;
+
+            const otherCards = penjodohData.filter(c => c.perkataan !== currentQuizCard.perkataan);
+            const shuffledOthers = [...otherCards].sort(() => 0.5 - Math.random()).slice(0, 3);
+            const options = [...shuffledOthers, currentQuizCard].sort(() => 0.5 - Math.random());
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = options.map(opt => `
+                <button onclick="checkQuizAnswer('${opt.perkataan}', this)" class="quiz-opt-btn p-3.5 bg-stone-900 hover:bg-stone-800 border border-amber-700/60 hover:border-amber-400 rounded-2xl text-amber-100 font-subheading font-bold text-lg transition-all text-center shadow-md">
+                    ${opt.perkataan}
+                </button>
+            `).join('');
+
+            document.getElementById('quiz-feedback').className = 'hidden';
+            document.getElementById('quiz-next-btn').className = 'hidden';
+        }
+
+        function speakQuizSentence() {
+            if (!currentQuizCard) return;
+            const sentenceToSpeak = currentQuizCard.contohAyat.replace(currentQuizCard.perkataan, 'kosong');
+            speakText(sentenceToSpeak);
+        }
+
+        function checkQuizAnswer(selectedWord, btnElement) {
+            const allBtns = document.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            const feedback = document.getElementById('quiz-feedback');
+            const isCorrect = (selectedWord === currentQuizCard.perkataan);
+
+            if (isCorrect) {
+                btnElement.className = 'quiz-opt-btn p-3.5 bg-gradient-to-r from-emerald-700 to-green-600 text-white border border-green-400 rounded-2xl font-subheading font-bold text-lg shadow-lg';
+                playSoundEffect('correct');
+                quizScore += 10;
+                document.getElementById('quiz-score').innerText = quizScore;
+
+                feedback.innerText = '⚔️ Syabas Pendeta! Jawapan anda TEPAT!';
+                feedback.className = 'p-3 rounded-xl text-center text-sm font-bold my-2 bg-emerald-950/90 text-emerald-300 border border-emerald-600 block font-subheading';
+                
+                speakText(`Tepat! ${currentQuizCard.perkataan}. ${currentQuizCard.contohAyat}`);
+            } else {
+                btnElement.className = 'quiz-opt-btn p-3.5 bg-red-900/90 text-white border border-red-500 rounded-2xl font-subheading font-bold text-lg shadow-lg';
+                playSoundEffect('wrong');
+
+                allBtns.forEach(btn => {
+                    if (btn.innerText.trim() === currentQuizCard.perkataan) {
+                        btn.className = 'quiz-opt-btn p-3.5 bg-amber-600 text-stone-950 border border-yellow-300 rounded-2xl font-subheading font-bold text-lg';
+                    }
+                });
+
+                feedback.innerText = `Jawapan kurang tepat. Jawapan sebenar ialah: "${currentQuizCard.perkataan}"`;
+                feedback.className = 'p-3 rounded-xl text-center text-sm font-bold my-2 bg-red-950/90 text-red-300 border border-red-700 block font-subheading';
+            }
+
+            document.getElementById('quiz-next-btn').className = 'w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-500 text-stone-950 font-subheading font-bold rounded-xl transition-all shadow-lg border border-yellow-300 block mt-2';
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            showQuizQuestion();
+        }
+
+        function finishQuiz() {
+            if (window.confetti) {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#d4af37', '#b45309', '#7a1c1c']
+                });
+            }
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            document.getElementById('quiz-sentence-box').innerHTML = `🏆 Syabas! Ujian Jebat Telah Selesai!`;
+            document.getElementById('quiz-prompt').innerText = `Jumlah Markah Pendeta:`;
+            document.getElementById('quiz-emoji').innerText = '🗡️';
+            
+            document.getElementById('quiz-feedback').innerHTML = `
+                <p class="text-xl font-bold text-amber-300 font-subheading">Markah Akhir: ${quizScore}</p>
+                <p class="text-xs text-amber-400/80 font-normal mt-1">Teruskan memperkemas keahlian bahasa anda!</p>
+            `;
+            document.getElementById('quiz-feedback').className = 'p-4 rounded-2xl text-center my-4 bg-stone-950/90 border border-amber-600 block';
+
+            document.getElementById('quiz-next-btn').innerText = '🔄 Ulang Ujian Jebat';
+            document.getElementById('quiz-next-btn').onclick = setupQuiz;
+            document.getElementById('quiz-next-btn').className = 'w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-500 text-stone-950 font-subheading font-bold rounded-xl transition-all shadow-lg border border-yellow-300 block';
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+
+            const tabs = ['flashcard', 'grid', 'quiz'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const view = document.getElementById(`view-${t}`);
+
+                if (t === tab) {
+                    btn.className = 'flex-1 md:flex-none px-5 py-2 rounded-lg text-sm font-subheading font-bold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 shadow-md';
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = 'flex-1 md:flex-none px-5 py-2 rounded-lg text-sm font-subheading font-bold flex items-center justify-center gap-2 transition-all text-amber-300 hover:text-white';
+                    view.classList.add('hidden');
+                }
+            });
+
+            if (tab === 'grid') renderGridView();
+            if (tab === 'quiz') setupQuiz();
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-stone-900 border border-amber-600 text-amber-200 px-4 py-2.5 rounded-xl text-xs font-semibold font-subheading shadow-2xl z-50 flex items-center gap-2 transition-all transform translate-y-0';
+            toast.innerHTML = `<span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (activeTab === 'flashcard') {
+                if (e.key === 'ArrowRight') nextCard();
+                if (e.key === 'ArrowLeft') prevCard();
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    flipCard();
+                }
+            }
+        });
+
+        // Initialize App on load
+        window.onload = function() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+            updateBookmarkCount();
+            updateCardDisplay();
+        };
+    </script>
+</body>
+</html>
